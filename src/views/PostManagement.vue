@@ -9,22 +9,15 @@
             Gerenciamento de Posts
             <v-spacer></v-spacer>
             <v-btn color="primary" @click="openCreateDialog">
-              <v-icon left>mdi-account-plus</v-icon>
+              <v-icon left>mdi-plus</v-icon>
               Novo Post
             </v-btn>
           </v-card-title>
 
-          <v-data-table
-            :headers="headers" 
-            :items="posts"
-            :loading="loading"
-            :server-items-length="totalItems"
-            :options.sync="options"
-            :footer-props="{
+          <v-data-table :headers="headers" :items="posts" :loading="loading" :server-items-length="totalItems"
+            :options.sync="options" :footer-props="{
               'items-per-page-options': [1, 5, 10, 25, 50]
-            }"
-            class="elevation-1"
-          >
+            }" class="elevation-1">
             <template #item.createdAt="{ item }">
               {{ formatDate(item.createdAt) }}
             </template>
@@ -44,21 +37,23 @@
           :value="formDialog"
           :post="selectedPost"
           @close="closeFormDialog"
-          @refresh="onPostSaved" 
+          @refresh="onPostSaved"
         />
+
         <ConfirmDeleteModal
           :value="deleteDialog"
           :item="selectedPost"
+          type="post"
           @close="deleteDialog = false"
           @confirm="deletePost"
         />
+
       </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import UserService from '@/services/UserService';
 import PostService from '@/services/PostService';
 import PostFormModal from '@/components/posts/PostFormModal.vue';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal.vue';
@@ -96,8 +91,8 @@ export default {
         mustSort: false
       },
       headers: [
-        { text: 'Nome', value: 'post' },
-        { text: 'User', value: 'user.name' },
+        { text: 'Post', value: 'post' },
+        { text: 'Usuário', value: 'user.name' },
         { text: 'Criado em', value: 'createdAt' },
         { text: 'Ações', value: 'actions', sortable: false },
       ],
@@ -108,7 +103,7 @@ export default {
     this.fetchPosts();
   },
 
-  mounted() {},
+  mounted() { },
 
   methods: {
     async fetchPosts() {
@@ -118,7 +113,7 @@ export default {
         this.posts = response.items;
         this.totalItems = response.meta.itemCount;
       } catch (error) {
-        console.error('Erro ao buscar post:', error);
+        console.error('Erro ao buscar posts:', error);
         this.posts = [];
         this.totalItems = 0;
       } finally {
@@ -159,7 +154,7 @@ export default {
     async deletePost() {
       try {
         await PostService.delete(this.selectedPost.id);
-        this.fetchPost();
+        this.fetchPosts();
       } catch (e) {
         console.error('Erro ao deletar post:', e);
       } finally {

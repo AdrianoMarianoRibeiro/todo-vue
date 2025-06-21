@@ -15,8 +15,8 @@
           <v-icon size="64" color="error" class="mb-4">mdi-delete-circle</v-icon>
           <h3 class="headline mb-4">Você tem certeza?</h3>
           <p class="body-1 grey--text text--darken-2">
-            Esta ação excluirá permanentemente o usuário 
-            <strong class="error--text">{{ item?.name }}</strong>
+            Esta ação excluirá permanentemente {{ itemType }} 
+            <strong class="error--text">{{ itemName }}</strong>
           </p>
           <p class="body-2 grey--text">
             Esta ação não pode ser desfeita.
@@ -29,8 +29,7 @@
       <v-card-actions class="px-6 py-4">
         <v-btn
           text
-          color="red darken-1"
-          outlined
+          color="grey darken-1"
           @click="close"
           class="mr-2"
         >
@@ -69,6 +68,10 @@ export default {
       type: Object,
       default: null,
     },
+    type: {
+      type: String,
+      default: 'item', // 'user', 'post', etc
+    },
   },
 
   data() {
@@ -78,7 +81,22 @@ export default {
     };
   },
 
-  computed: {},
+  computed: {
+    itemType() {
+      const types = {
+        user: 'o usuário',
+        post: 'o post',
+        item: 'o item'
+      };
+      return types[this.type] || 'o item';
+    },
+
+    itemName() {
+      if (!this.item) return '';
+      // Para usuários, usar 'name'. Para posts, usar 'post'
+      return this.item.name || this.item.post || 'item sem nome';
+    }
+  },
 
   watch: {
     value(val) {

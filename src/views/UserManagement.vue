@@ -52,12 +52,15 @@
           @close="closeFormDialog"
           @refresh="onUserSaved" 
         />
+
         <ConfirmDeleteModal
           :value="deleteDialog"
           :item="selectedUser"
+          type="user"
           @close="deleteDialog = false"
           @confirm="deleteUser"
         />
+        
       </v-container>
     </v-main>
   </v-app>

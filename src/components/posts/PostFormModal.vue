@@ -3,7 +3,7 @@
     <v-card>
       <v-card-title class="primary white--text">
         <v-icon color="white" class="mr-2">
-          {{ isEdit ? 'mdi-account-edit' : 'mdi-account-plus' }}
+          {{ isEdit ? 'mdi-pencil' : 'mdi-plus' }}
         </v-icon>
         {{ isEdit ? 'Editar Post' : 'Novo Post' }}
         <v-spacer />
@@ -15,30 +15,41 @@
       <v-card-text class="pt-6">
         <v-form ref="form" v-model="valid">
           <v-row>
-            <v-col cols="12" md="6">
+            <v-col cols="12">
               <v-text-field
                 v-model="form.post"
-                label="Nome completo"
+                label="Título do post"
+                :rules="[rules.required]"
+                prepend-icon="mdi-post"
+                outlined
+                dense
+                required
+              />
+            </v-col>
+            
+            <v-col cols="12">
+              <v-select
+                v-model="form.userId"
+                :items="users"
+                item-text="name"
+                item-value="id"
+                label="Selecione o usuário"
                 :rules="[rules.required]"
                 prepend-icon="mdi-account"
                 outlined
                 dense
                 required
-              />
+                :loading="loadingUsers"
+                :disabled="isEdit"
+              >
+                <template #item="{ item }">
+                  <v-list-item-content>
+                    <v-list-item-title>{{ item.name }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ item.email }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </template>
+              </v-select>
             </v-col>
-            
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="form.email"
-                label="E-mail"
-                :rules="[rules.required, rules.email]"
-                prepend-icon="mdi-email"
-                outlined
-                dense
-                required
-              />
-            </v-col>
-            
           </v-row>
         </v-form>
       </v-card-text>
@@ -47,8 +58,7 @@
         <v-spacer />
         <v-btn
           text
-          color="red darken-1"
-          outlined
+          color="grey darken-1"
           @click="close"
           class="mr-2"
         >
@@ -73,6 +83,7 @@
 
 <script>
 import PostService from '@/services/PostService';
+import UserService from '@/services/UserService';
 
 export default {
   name: 'PostFormModal',
@@ -92,9 +103,11 @@ export default {
       dialog: false,
       valid: false,
       loading: false,
+      loadingUsers: false,
+      users: [],
       form: {
         post: '',
-        postId: '',
+        userId: '',
       },
       rules: {
         required: (v) => !!v || 'Campo obrigatório',
@@ -111,7 +124,10 @@ export default {
   watch: {
     value(val) {
       this.dialog = val;
-      if (val) this.initForm();
+      if (val) {
+        this.initForm();
+        this.loadUsers();
+      }
     },
   },
 
@@ -120,20 +136,29 @@ export default {
   mounted() {},
 
   methods: {
+    async loadUsers() {
+      this.loadingUsers = true;
+      try {
+        const response = await UserService.getAll();
+        this.users = response.data || [];
+      } catch (error) {
+        console.error('Erro ao carregar usuários:', error);
+        this.users = [];
+      } finally {
+        this.loadingUsers = false;
+      }
+    },
+
     initForm() {
       if (this.post) {
         this.form = {
-          name: this.post.name || '',
-          email: this.post.email || '',
-          password: '',
-          status: this.post.status !== undefined ? this.post.status : true,
+          post: this.post.post || '',
+          userId: this.post.userId || this.post.user?.id || '',
         };
       } else {
         this.form = {
-          name: '',
-          email: '',
-          password: '',
-          status: true,
+          post: '',
+          userId: '',
         };
       }
       
@@ -159,30 +184,21 @@ export default {
       try {
         if (this.isEdit) {
           await PostService.update(this.post.id, {
-            name: this.form.name,
-            email: this.form.email,
-            status: this.form.status,
+            post: this.form.post,
+            userId: this.form.userId,
           });
         } else {
           await PostService.create({
-            name: this.form.name,
-            email: this.form.email,
-            password: this.form.password,
-            status: this.form.status,
+            post: this.form.post,
+            userId: this.form.userId,
           });
         }
         
         this.$emit('refresh');
         this.close();
         
-        // Mostrar mensagem de sucesso (opcional)
-        this.$nextTick(() => {
-          // Você pode adicionar um toast/snackbar aqui
-        });
-        
       } catch (err) {
-        console.error('Erro ao salvar Post:', err);
-        // Aqui você pode mostrar uma mensagem de erro
+        console.error('Erro ao salvar post:', err);
       } finally {
         this.loading = false;
       }
@@ -198,9 +214,5 @@ export default {
 
 .v-card__text {
   padding-bottom: 0 !important;
-}
-
-.v-switch {
-  margin-top: 0;
 }
 </style>
