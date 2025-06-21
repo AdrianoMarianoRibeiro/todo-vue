@@ -292,9 +292,9 @@ export default {
       this.loading = true;
       try {
         // Carregar estatísticas de usuários
-        const usersResponse = await UserService.getAll();
-        const users = usersResponse.data || [];
-        this.stats.totalUsers = users.length;
+        const usersResponse = await UserService.findAll();
+        const users = usersResponse.items || [];
+        this.stats.totalUsers = usersResponse.meta.itemCount || users.length;
         this.stats.activeUsers = users.filter(user => user.status).length;
 
         // Carregar estatísticas de posts

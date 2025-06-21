@@ -24,7 +24,7 @@
       </v-list-item>
       <v-list-item link to="/post">
         <v-list-item-icon>
-          <v-icon>mdi-calendar</v-icon>
+          <v-icon class="mb-3">mdi-post</v-icon>
         </v-list-item-icon>
         <v-list-item-content v-if="!mini">
           <v-list-item-title>Post</v-list-item-title>
