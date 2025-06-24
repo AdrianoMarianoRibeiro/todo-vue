@@ -14,6 +14,16 @@
             </v-btn>
           </v-card-title>
 
+          <!-- Mostrar erro se houver -->
+          <v-alert v-if="error" type="error" dismissible @input="clearError">
+            {{ error }}
+          </v-alert>
+
+          <!-- Debug info -->
+          <v-alert v-if="!loading && users.length === 0" type="info" class="mb-4">
+            Nenhum usuário encontrado. Total: {{ totalItems }}
+          </v-alert>
+
           <v-data-table
             :headers="headers" 
             :items="users"
@@ -58,7 +68,7 @@
           :item="selectedUser"
           type="user"
           @close="deleteDialog = false"
-          @confirm="deleteUser"
+          @confirm="deleteUserHandler"
         />
         
       </v-container>
@@ -67,7 +77,7 @@
 </template>
 
 <script>
-import UserService from '@/services/UserService';
+import { mapState, mapActions, mapGetters } from 'vuex';
 import UserFormModal from '@/components/users/UserFormModal.vue';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
@@ -83,13 +93,8 @@ export default {
     AppHeader,
   },
 
-  props: {},
-
   data() {
     return {
-      users: [],
-      totalItems: 0,
-      loading: false,
       formDialog: false,
       deleteDialog: false,
       selectedUser: null,
@@ -113,27 +118,33 @@ export default {
     };
   },
 
-  created() {
-    this.fetchUsers();
+  computed: {
+    ...mapState('user', ['users', 'totalItems', 'loading', 'error']),
+    ...mapGetters('user', ['activeUsers', 'totalActiveUsers']),
   },
 
-  mounted() {},
+  created() {
+    console.log('UserManagement created, chamando fetchUsers...');
+    this.fetchUsers({ 
+      page: this.options.page, 
+      limit: this.options.itemsPerPage 
+    });
+  },
+
+  mounted() {
+    console.log('UserManagement mounted');
+    console.log('Users no mounted:', this.users);
+    console.log('Loading no mounted:', this.loading);
+  },
 
   methods: {
-    async fetchUsers() {
-      this.loading = true;
-      try {
-        const response = await UserService.findAll(this.options.page, this.options.itemsPerPage);
-        this.users = response.items;
-        this.totalItems = response.meta.itemCount;
-      } catch (error) {
-        console.error('Erro ao buscar usuários:', error);
-        this.users = [];
-        this.totalItems = 0;
-      } finally {
-        this.loading = false;
-      }
-    },
+    ...mapActions('user', [
+      'fetchUsers', 
+      'createUser', 
+      'updateUser', 
+      'deleteUser', // Removido o "as deleteUserAction"
+      'clearError'
+    ]),
 
     formatDate(dateString) {
       if (!dateString) return '';
@@ -157,7 +168,10 @@ export default {
     },
 
     onUserSaved() {
-      this.fetchUsers();
+      this.fetchUsers({ 
+        page: this.options.page, 
+        limit: this.options.itemsPerPage 
+      });
     },
 
     confirmDelete(user) {
@@ -165,10 +179,9 @@ export default {
       this.deleteDialog = true;
     },
 
-    async deleteUser() {
+    async deleteUserHandler() { // Renomeado o método local
       try {
-        await UserService.delete(this.selectedUser.id);
-        this.fetchUsers();
+        await this.deleteUser(this.selectedUser.id); // Usando a action mapeada
       } catch (e) {
         console.error('Erro ao deletar usuário:', e);
       } finally {
@@ -178,14 +191,23 @@ export default {
     },
   },
 
-  computed: {},
-
   watch: {
     options: {
       handler() {
-        this.fetchUsers();
+        console.log('Options changed:', this.options);
+        this.fetchUsers({ 
+          page: this.options.page, 
+          limit: this.options.itemsPerPage 
+        });
       },
       deep: true,
+    },
+
+    users: {
+      handler(newUsers) {
+        console.log('Users mudaram:', newUsers);
+      },
+      immediate: true,
     },
   },
 };

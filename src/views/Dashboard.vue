@@ -258,7 +258,7 @@
 </template>
 
 <script>
-import UserService from '@/services/UserService';
+import { mapActions, mapGetters } from 'vuex';
 import PostService from '@/services/PostService';
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppHeader from '@/components/AppHeader.vue'
@@ -283,22 +283,27 @@ export default {
     };
   },
 
+  computed: {
+    ...mapGetters('user', ['totalActiveUsers']),
+  },
+
   created() {
     this.loadStats();
   },
 
   methods: {
+    ...mapActions('user', ['getAllUsers']),
+
     async loadStats() {
       this.loading = true;
       try {
-        // Carregar estatísticas de usuários
-        const usersResponse = await UserService.findAll();
-        const users = usersResponse.items || [];
-        this.stats.totalUsers = usersResponse.meta.itemCount || users.length;
+        // Carregar estatísticas de usuários via Vuex
+        const users = await this.getAllUsers();
+        this.stats.totalUsers = users.length;
         this.stats.activeUsers = users.filter(user => user.status).length;
 
         // Carregar estatísticas de posts
-        const postsResponse = await PostService.findAll(1, 1000); // Pegar todos os posts para contar
+        const postsResponse = await PostService.findAll(1, 1000);
         const posts = postsResponse.items || [];
         this.stats.totalPosts = posts.length;
         

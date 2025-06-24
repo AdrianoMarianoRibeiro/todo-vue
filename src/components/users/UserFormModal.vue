@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import UserService from '@/services/UserService';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'UserFormModal',
@@ -150,6 +150,8 @@ export default {
   mounted() {},
 
   methods: {
+    ...mapActions('user', ['createUser', 'updateUser']),
+
     initForm() {
       if (this.user) {
         this.form = {
@@ -188,13 +190,16 @@ export default {
       
       try {
         if (this.isEdit) {
-          await UserService.update(this.user.id, {
-            name: this.form.name,
-            email: this.form.email,
-            status: this.form.status,
+          await this.updateUser({
+            id: this.user.id,
+            userData: {
+              name: this.form.name,
+              email: this.form.email,
+              status: this.form.status,
+            }
           });
         } else {
-          await UserService.create({
+          await this.createUser({
             name: this.form.name,
             email: this.form.email,
             password: this.form.password,
@@ -205,14 +210,9 @@ export default {
         this.$emit('refresh');
         this.close();
         
-        // Mostrar mensagem de sucesso (opcional)
-        this.$nextTick(() => {
-          // Você pode adicionar um toast/snackbar aqui
-        });
-        
       } catch (err) {
         console.error('Erro ao salvar usuário:', err);
-        // Aqui você pode mostrar uma mensagem de erro
+        // O erro já é tratado no store
       } finally {
         this.loading = false;
       }

@@ -1,23 +1,48 @@
 <template>
   <v-app-bar app color="primary" dark>
-    <v-btn icon @click="toggleSidebar">
-      <v-icon>mdi-menu</v-icon>
-    </v-btn>
-
-    <v-toolbar-title>Meu Sistema</v-toolbar-title>
+    <v-app-bar-nav-icon @click="toggleSidebar"></v-app-bar-nav-icon>
+    
+    <v-toolbar-title>Sistema de Gerenciamento</v-toolbar-title>
+    
     <v-spacer></v-spacer>
-
-    <v-menu offset-y>
+    
+    <v-btn icon>
+      <v-icon>mdi-bell</v-icon>
+    </v-btn>
+    
+    <v-menu bottom left>
       <template v-slot:activator="{ on, attrs }">
-        <v-btn v-bind="attrs" v-on="on" icon>
-          <v-icon>mdi-account-circle</v-icon>
+        <v-btn icon v-bind="attrs" v-on="on">
+          <v-avatar size="32">
+            <v-icon>mdi-account</v-icon>
+          </v-avatar>
         </v-btn>
       </template>
+      
       <v-list>
         <v-list-item>
-          <v-list-item-title>{{ user.name }}</v-list-item-title>
+          <v-list-item-avatar>
+            <v-icon>mdi-account</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>{{ currentUser.name || 'Usuário' }}</v-list-item-title>
+            <v-list-item-subtitle>Administrador</v-list-item-subtitle>
+          </v-list-item-content>
         </v-list-item>
-        <v-list-item @click="logout">
+        
+        <v-divider></v-divider>
+        
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-account-settings</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Perfil</v-list-item-title>
+        </v-list-item>
+        
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-logout</v-icon>
+          </v-list-item-icon>
           <v-list-item-title>Sair</v-list-item-title>
         </v-list-item>
       </v-list>
@@ -25,18 +50,22 @@
   </v-app-bar>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { mapState, mapActions } from 'vuex'
+<script>
+import { mapState, mapMutations } from 'vuex';
 
-@Component({
+export default {
+  name: 'AppHeader',
+
   computed: {
-    ...mapState('user', ['user'])
+    ...mapState('user', ['currentUser']),
   },
+
   methods: {
-    ...mapActions('user', ['logout']),
-    ...mapActions('layout', ['toggleSidebar'])
-  }
-})
-export default class AppHeader extends Vue {}
+    ...mapMutations('layout', ['TOGGLE_SIDEBAR']),
+    
+    toggleSidebar() {
+      this.TOGGLE_SIDEBAR();
+    },
+  },
+};
 </script>
