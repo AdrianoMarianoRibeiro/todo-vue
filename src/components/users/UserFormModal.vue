@@ -73,7 +73,7 @@
         <v-spacer />
         <v-btn
           text
-          color="red darken-1"
+          color="primary"
           outlined
           @click="close"
           class="mr-2"
@@ -150,7 +150,7 @@ export default {
   mounted() {},
 
   methods: {
-    ...mapActions('user', ['createUser', 'updateUser']),
+    ...mapActions('user', ['create', 'update']),
 
     initForm() {
       if (this.user) {
@@ -190,16 +190,16 @@ export default {
       
       try {
         if (this.isEdit) {
-          await this.updateUser({
+          await this.update({
             id: this.user.id,
-            userData: {
+            data: {
               name: this.form.name,
               email: this.form.email,
               status: this.form.status,
             }
           });
         } else {
-          await this.createUser({
+          await this.create({
             name: this.form.name,
             email: this.form.email,
             password: this.form.password,

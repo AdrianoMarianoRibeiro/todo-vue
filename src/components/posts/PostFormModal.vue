@@ -58,7 +58,8 @@
         <v-spacer />
         <v-btn
           text
-          color="grey darken-1"
+          color="primary"
+          outlined
           @click="close"
           class="mr-2"
         >

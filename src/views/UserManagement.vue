@@ -68,7 +68,7 @@
           :item="selectedUser"
           type="user"
           @close="deleteDialog = false"
-          @confirm="deleteUserHandler"
+          @confirm="deleteHandler"
         />
         
       </v-container>
@@ -124,8 +124,8 @@ export default {
   },
 
   created() {
-    console.log('UserManagement created, chamando fetchUsers...');
-    this.fetchUsers({ 
+    console.log('UserManagement created, chamando findAll...');
+    this.findAll({ 
       page: this.options.page, 
       limit: this.options.itemsPerPage 
     });
@@ -139,10 +139,10 @@ export default {
 
   methods: {
     ...mapActions('user', [
-      'fetchUsers', 
-      'createUser', 
-      'updateUser', 
-      'deleteUser', // Removido o "as deleteUserAction"
+      'findAll', 
+      'create', 
+      'update', 
+      'delete', // Removido o "as deleteAction"
       'clearError'
     ]),
 
@@ -168,7 +168,7 @@ export default {
     },
 
     onUserSaved() {
-      this.fetchUsers({ 
+      this.findAll({ 
         page: this.options.page, 
         limit: this.options.itemsPerPage 
       });
@@ -179,9 +179,9 @@ export default {
       this.deleteDialog = true;
     },
 
-    async deleteUserHandler() { // Renomeado o método local
+    async deleteHandler() { // Renomeado o método local
       try {
-        await this.deleteUser(this.selectedUser.id); // Usando a action mapeada
+        await this.delete(this.selectedUser.id); // Usando a action mapeada
       } catch (e) {
         console.error('Erro ao deletar usuário:', e);
       } finally {
@@ -195,7 +195,7 @@ export default {
     options: {
       handler() {
         console.log('Options changed:', this.options);
-        this.fetchUsers({ 
+        this.findAll({ 
           page: this.options.page, 
           limit: this.options.itemsPerPage 
         });

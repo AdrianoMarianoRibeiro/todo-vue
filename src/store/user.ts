@@ -70,7 +70,7 @@ export const user: Module<UserState, RootState> = {
   },
 
   actions: {
-    async fetchUsers({ commit }, { page = 1, limit = 10 } = {}) {
+    async findAll({ commit }, { page = 1, limit = 10 } = {}) {
       commit("SET_LOADING", true);
       commit("SET_ERROR", null);
 
@@ -88,14 +88,14 @@ export const user: Module<UserState, RootState> = {
       }
     },
 
-    async createUser({ commit, dispatch }, userData) {
+    async create({ commit, dispatch }, data) {
       commit("SET_LOADING", true);
       commit("SET_ERROR", null);
 
       try {
-        const response = await UserService.create(userData);
+        const response = await UserService.create(data);
         // Recarregar a lista após criar
-        await dispatch("fetchUsers");
+        await dispatch("findAll");
         return response;
       } catch (error) {
         console.error("Erro ao criar usuário:", error);
@@ -106,14 +106,14 @@ export const user: Module<UserState, RootState> = {
       }
     },
 
-    async updateUser({ commit, dispatch }, { id, userData }) {
+    async update({ commit, dispatch }, { id, data }) {
       commit("SET_LOADING", true);
       commit("SET_ERROR", null);
 
       try {
-        const response = await UserService.update(id, userData);
+        const response = await UserService.update(id, data);
         // Recarregar a lista após atualizar
-        await dispatch("fetchUsers");
+        await dispatch("findAll");
         return response;
       } catch (error) {
         console.error("Erro ao atualizar usuário:", error);
@@ -124,14 +124,14 @@ export const user: Module<UserState, RootState> = {
       }
     },
 
-    async deleteUser({ commit, dispatch }, id: string) {
+    async delete({ commit, dispatch }, id: string) {
       commit("SET_LOADING", true);
       commit("SET_ERROR", null);
 
       try {
         await UserService.delete(id);
         // Recarregar a lista após deletar
-        await dispatch("fetchUsers");
+        await dispatch("findAll");
       } catch (error) {
         console.error("Erro ao deletar usuário:", error);
         commit("SET_ERROR", "Erro ao deletar usuário");

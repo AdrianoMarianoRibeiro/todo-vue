@@ -29,9 +29,9 @@
       <v-card-actions class="px-6 py-4">
         <v-btn
           text
-          color="grey darken-1"
+          color="error"
           @click="close"
-          class="mr-2"
+          outlined
         >
           <v-icon left>mdi-cancel</v-icon>
           Cancelar
