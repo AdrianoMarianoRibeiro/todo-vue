@@ -83,8 +83,7 @@
 </template>
 
 <script>
-import PostService from '@/services/PostService';
-import UserService from '@/services/UserService';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'PostFormModal',
@@ -137,13 +136,15 @@ export default {
   mounted() {},
 
   methods: {
+    ...mapActions('post', ['create', 'update']),
+    ...mapActions('user', ['getAllUsers']),
+
     async loadUsers() {
       this.loadingUsers = true;
       try {
-        const response = await UserService.getAll();
-        this.users = response.data || [];
+        this.users = await this.getAllUsers();
       } catch (error) {
-        console.error('Erro ao carregar usuários:', error);
+        console.error('Erro ao carregar usuários:', this.users);
         this.users = [];
       } finally {
         this.loadingUsers = false;
@@ -184,12 +185,15 @@ export default {
       
       try {
         if (this.isEdit) {
-          await PostService.update(this.post.id, {
-            post: this.form.post,
-            userId: this.form.userId,
+          await this.update({
+            id: this.post.id,
+            data: {
+              post: this.form.post,
+              userId: this.form.userId,
+            }
           });
         } else {
-          await PostService.create({
+          await this.create({
             post: this.form.post,
             userId: this.form.userId,
           });

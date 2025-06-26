@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import PostService from '@/services/PostService';
+import { mapState, mapActions } from 'vuex';
 import PostFormModal from '@/components/posts/PostFormModal.vue';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
@@ -70,13 +70,8 @@ export default {
     AppHeader,
   },
 
-  props: {},
-
   data() {
     return {
-      posts: [],
-      totalItems: 0,
-      loading: false,
       formDialog: false,
       deleteDialog: false,
       selectedPost: null,
@@ -99,27 +94,27 @@ export default {
     };
   },
 
+  computed: {
+    ...mapState('post', ['posts', 'totalItems', 'loading', 'error']),
+  },
+
   created() {
-    this.fetchPosts();
+    this.findAll({ 
+      page: this.options.page, 
+      limit: this.options.itemsPerPage 
+    });
   },
 
   mounted() { },
 
   methods: {
-    async fetchPosts() {
-      this.loading = true;
-      try {
-        const response = await PostService.findAll(this.options.page, this.options.itemsPerPage);
-        this.posts = response.items;
-        this.totalItems = response.meta.itemCount;
-      } catch (error) {
-        console.error('Erro ao buscar posts:', error);
-        this.posts = [];
-        this.totalItems = 0;
-      } finally {
-        this.loading = false;
-      }
-    },
+    ...mapActions('post', [
+      'findAll', 
+      'create', 
+      'update', 
+      'delete', // Removido o "as deleteAction"
+      'clearError'
+    ]),
 
     formatDate(dateString) {
       if (!dateString) return '';
@@ -143,7 +138,10 @@ export default {
     },
 
     onPostSaved() {
-      this.fetchPosts();
+      this.findAll({ 
+        page: this.options.page, 
+        limit: this.options.itemsPerPage 
+      });
     },
 
     confirmDelete(post) {
@@ -153,8 +151,7 @@ export default {
 
     async deletePost() {
       try {
-        await PostService.delete(this.selectedPost.id);
-        this.fetchPosts();
+        await this.delete(this.selectedPost.id); 
       } catch (e) {
         console.error('Erro ao deletar post:', e);
       } finally {
@@ -164,12 +161,13 @@ export default {
     },
   },
 
-  computed: {},
-
   watch: {
     options: {
       handler() {
-        this.fetchPosts();
+        this.findAll({ 
+          page: this.options.page, 
+          limit: this.options.itemsPerPage 
+        });
       },
       deep: true,
     },

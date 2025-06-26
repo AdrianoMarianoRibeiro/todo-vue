@@ -202,13 +202,6 @@ export default {
       },
       deep: true,
     },
-
-    users: {
-      handler(newUsers) {
-        console.log('Users mudaram:', newUsers);
-      },
-      immediate: true,
-    },
   },
 };
 </script>
