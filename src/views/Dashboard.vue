@@ -17,7 +17,7 @@
               <h2 class="headline grey--text text--darken-2 mb-4">
                 Usuários & Posts
               </h2>
-              <p class="body-1 grey--text text--darken-1 mx-auto" style="max-width: 600px;">
+              <p class="body-1 grey--text text--darken-1 mx-auto text-justify" style="max-width: 600px;">
                 Plataforma completa para gerenciar usuários e suas publicações. 
                 Crie, edite e organize posts de forma simples e eficiente.
               </p>

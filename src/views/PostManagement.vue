@@ -14,15 +14,27 @@
             </v-btn>
           </v-card-title>
 
-          <v-data-table :headers="headers" :items="posts" :loading="loading" :server-items-length="totalItems"
-            :options.sync="options" :footer-props="{
-              'items-per-page-options': [1, 5, 10, 25, 50]
-            }" class="elevation-1">
-            <template #item.createdAt="{ item }">
+          <v-data-table 
+            :headers="headers"
+            :items="posts"
+            :loading="loading"
+            :server-items-length="totalItems"
+            :options.sync="options" 
+            :footer-props="{
+              'items-per-page-options': [1, 5, 10, 25, 50],
+              'items-per-page-text': 'Itens por página',
+              'page-text': '{0}-{1} de {2}'
+            }"
+            no-data-text="Nenhum post encontrado"
+            no-results-text="Nenhum post encontrado"
+            loading-text="Carregando..."
+            class="elevation-1"
+          >
+            <template #[`item.createdAt`]="{ item }">
               {{ formatDate(item.createdAt) }}
             </template>
 
-            <template #item.actions="{ item }">
+            <template #[`item.actions`]="{ item }">
               <v-btn icon @click="openEditDialog(item)">
                 <v-icon color="primary">mdi-pencil</v-icon>
               </v-btn>
