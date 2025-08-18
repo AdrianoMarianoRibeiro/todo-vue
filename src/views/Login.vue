@@ -139,10 +139,10 @@ export default {
       } catch (error) {
         console.error('Erro no login:', error);
         
-        if (error.response && error.response.data && error.response.data.message) {
-          this.error = error.response.data.message;
+        if (error.response && error.response.data && error.response.data.data) {
+          this.error = error.response.data.data;
         } else if (error.response && error.response.status === 401) {
-          this.error = 'E-mail ou senha inválidos';
+          this.error = error.response.data.data;
         } else {
           this.error = 'Erro interno do servidor. Tente novamente.';
         }
